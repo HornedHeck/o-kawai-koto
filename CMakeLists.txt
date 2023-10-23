@@ -13,7 +13,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
 project(
-  "projectname"
+  "o-kawai-koto"
   LANGUAGES C ASM
   VERSION 0.1.0)
 

@@ -1,0 +1,11 @@
+##Hardware Drivers
+drivers/*
+!drivers/CMakeLists.txt
+!drivers/startup_*
+
+#Build
+build
+
+#vscode
+.vscode
+.gitignore

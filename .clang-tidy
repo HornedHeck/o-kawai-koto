@@ -1,0 +1,16 @@
+Checks: >
+  -*,
+  readability-*,
+  google-*,
+  performance-*,
+  bugprone-*,
+  modernize-*,
+  -modernize-use-using,
+  -modernize-deprecated-headers
+WarningsAsErrors: "*"
+
+
+
+# IMPORTANT: Set HeaderFilterRegex as shown below.
+# Do not set it to '.*', for example.
+HeaderFilterRegex: ''

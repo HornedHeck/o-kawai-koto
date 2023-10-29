@@ -3,7 +3,7 @@ set(CMAKE_SYSTEM_PROCESSOR          arm)
 
 set(TOOLCHAIN_PREFIX                "arm-none-eabi-")
 
-set(FLAGS                           "-fdata-sections -ffunction-sections --specs=nano.specs -Wl,--gc-sections")
+set(FLAGS                           "--specs=nosys.specs -fdata-sections -ffunction-sections -Wl,--gc-sections")
 set(ASM_FLAGS                       "-x assembler-with-cpp")
 set(CPP_FLAGS                       "-fno-rtti -fno-exceptions -fno-threadsafe-statics")
 

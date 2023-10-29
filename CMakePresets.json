@@ -7,7 +7,17 @@
     },
     "configurePresets": [
         {
+            "name": "opus",
+            "hidden": true,
+            "cacheVariables": {
+                "OPUS_ENABLE_FLOAT_API": "OFF",
+                "OPUS_FIXED_POINT": "ON",
+                "OPUS_VAR_ARRAYS": "OFF"
+            }
+        },
+        {
             "name": "stm32l4xx",
+            "inherits": "opus",
             "displayName": "STM32 L4xx",
             "description": "Build for STM32 L4xx with Ninja",
             "generator": "Ninja",
@@ -22,6 +32,7 @@
         },
         {
             "name": "linux_amd64",
+            "inherits": "opus",
             "displayName": "Linux AMD64",
             "description": "Build for Linux AMD64 with Ninja",
             "generator": "Ninja",

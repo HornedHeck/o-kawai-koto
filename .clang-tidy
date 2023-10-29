@@ -7,6 +7,8 @@ Checks: >
   modernize-*,
   -modernize-use-using,
   -modernize-deprecated-headers
+  -modernize-macro-to-enum
+  -modernize-use-trailing-return-type
 WarningsAsErrors: "*"
 
 

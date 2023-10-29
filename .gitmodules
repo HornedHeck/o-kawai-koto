@@ -1,0 +1,3 @@
+[submodule "thirdparty/opus"]
+	path = thirdparty/opus
+	url = git@github.com:xiph/opus.git

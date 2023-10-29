@@ -1,4 +1,5 @@
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/tool/arm_none_eabi_toolchain.cmake)
+set(CMAKE_TOOLCHAIN_FILE
+    ${CMAKE_SOURCE_DIR}/cmake/toolchains/arm_none_eabi_toolchain.cmake)
 
 set(COMPILE_OPTIONS
     -mcpu=cortex-m4
@@ -11,10 +12,10 @@ set(COMPILE_OPTIONS
     -Wno-unused-command-line-argument
     $<$<CONFIG:Debug>:-Og>)
 
-set(COMPILE_DEFINITIONS STM32L432xx USE_HAL_DRIVER)
+set(COMPILE_DEFINITIONS STM32L432xx USE_HAL_DRIVER FIXED_POINT)
 
 set(LINK_OPTIONS
-    -T${CMAKE_SOURCE_DIR}/drivers/STM32L432KCUx_FLASH.ld
+    -T${CMAKE_SOURCE_DIR}/drivers/STM32L432KCUX_FLASH.ld
     -mcpu=cortex-m4
     -mthumb
     -mfpu=fpv4-sp-d16

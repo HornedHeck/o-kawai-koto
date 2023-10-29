@@ -17,6 +17,8 @@ project(
   LANGUAGES C ASM
   VERSION 0.1.0)
 
+add_subdirectory(${CMAKE_SOURCE_DIR}/thirdparty)
+
 add_subdirectory(${CMAKE_SOURCE_DIR}/bsp)
 
 set(TARGET_NAME ${CMAKE_PROJECT_NAME})
@@ -34,6 +36,7 @@ target_compile_definitions(${TARGET_NAME} PRIVATE ${COMPILE_DEFINITIONS})
 target_link_options(${TARGET_NAME} PRIVATE ${LINK_OPTIONS})
 
 target_link_libraries(${TARGET_NAME} BOARD)
+target_link_libraries(${TARGET_NAME} opus)
 
 target_enable_lint(${TARGET_NAME})
 

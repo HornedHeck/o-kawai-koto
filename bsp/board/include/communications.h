@@ -15,9 +15,10 @@ typedef struct {
 
 void InitCommunication(CommunicationHandle *handle);
 
-void SendData(CommunicationHandle *handle, const uint8_t *data, uint16_t size);
+void SendData(const CommunicationHandle *handle, const uint8_t *data,
+              uint16_t size);
 
-void ReceiveData(CommunicationHandle *handle, uint8_t *buffer,
+void ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
                  uint16_t bufferSize);
 
 #endif /* BSP_BOARD_INCLUDE_COMMUNICATIONS */

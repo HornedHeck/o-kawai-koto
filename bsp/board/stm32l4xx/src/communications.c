@@ -23,11 +23,12 @@ void InitCommunication(CommunicationHandle *handle) {
     }
 }
 
-void SendData(CommunicationHandle *handle, const uint8_t *data, uint16_t size) {
-    HAL_UART_Transmit(handle->hwHandle, data, size, 50); //NOLINT
+void SendData(const CommunicationHandle *handle, const uint8_t *data,
+              uint16_t size) {
+    HAL_UART_Transmit(handle->hwHandle, data, size, 50);  // NOLINT
 }
 
-void ReceiveData(CommunicationHandle *handle, uint8_t *buffer,
+void ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
                  uint16_t bufferSize) {
-    HAL_UART_Receive(handle->hwHandle, buffer, bufferSize, -1);
+    HAL_UART_Receive(handle->hwHandle, buffer, bufferSize, 1000);  // NOLINT
 }

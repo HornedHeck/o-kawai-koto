@@ -11,11 +11,12 @@ void InitCommunication(CommunicationHandle *handle) {
            handle->portNum);
 }
 
-void SendData(CommunicationHandle *handle, const uint8_t *data, uint16_t size) {
+void SendData(const CommunicationHandle *handle, const uint8_t *data,
+              uint16_t size) {
     printf("Sending data of size %d: %s\n", size, data);
 }
 
-void ReceiveData(CommunicationHandle *handle, uint8_t *buffer,
+void ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
                  uint16_t bufferSize) {
     for (uint16_t j = 0; j < bufferSize; j++, i = (i + 1) % 45) {
         buffer[j] = atAnswer[i];

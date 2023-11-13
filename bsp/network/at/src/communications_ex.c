@@ -1,14 +1,32 @@
 #include "communications_ex.h"
 
-#include "communications.h"
+#include <string.h>
 
-static void GetNextByte(CommunicationHandle *handle, uint8_t *buffer) {
+#include "communications.h"
+#include "stddef.h"
+
+static const DataSequence ends[] = {
+    {
+        .data = "OK\r\n",
+        .size = 4,
+    },
+    {
+        .data = "ERROR\r\n",
+        .size = 7,
+    },
+};
+
+static const char commands[3][50] = {
+    "AT+CWMODE=1,0", "AT+CWJAP=\"" WIFI_SSID "\",\"" WIFI_PWD "\"",
+    "AT+CIPSTA?"};
+
+static void GetNextByte(const CommunicationHandle *handle, uint8_t *buffer) {
     ReceiveData(handle, buffer, 1);
 }
 
-uint16_t BlockingRead(CommunicationHandle *handle, uint8_t *buffer,
+uint16_t BlockingRead(const CommunicationHandle *handle, uint8_t *buffer,
                       uint16_t bufferSize, DataSequence start,
-                      DataSequence *ends, uint16_t endsCount) {
+                      const DataSequence *ends, uint16_t endsCount) {
     uint16_t endSequenceCounters[endsCount];
     uint16_t readCount = 0;
 
@@ -37,7 +55,16 @@ uint16_t BlockingRead(CommunicationHandle *handle, uint8_t *buffer,
                 endSequenceCounters[j] = 0;
             }
         }
-        
     }
     return 0;
+}
+
+uint16_t ExecuteAtCommand(const CommunicationHandle *handle, uint8_t *buffer,
+                          uint16_t bufferSize, ATCommand ATCommand) {
+    DataSequence commandData = {
+        .data = commands[ATCommand],
+        .size = strlen(commands[ATCommand]),
+    };
+    SendData(handle, (const uint8_t *) commandData.data, commandData.size);
+    return BlockingRead(handle, buffer, bufferSize, commandData, ends, 2);
 }

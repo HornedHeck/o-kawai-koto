@@ -5,6 +5,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
 include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/secrets.cmake)
 
 include(${CMAKE_SOURCE_DIR}/cmake/configs/${BOARD_FLAVOR}.cmake OPTIONAL)
 

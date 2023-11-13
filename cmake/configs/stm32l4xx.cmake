@@ -1,5 +1,5 @@
 set(CMAKE_TOOLCHAIN_FILE
-    ${CMAKE_SOURCE_DIR}/cmake/tool/arm_none_eabi_toolchain.cmake)
+    ${CMAKE_SOURCE_DIR}/cmake/toolchains/arm_none_eabi_toolchain.cmake)
 
 set(COMPILE_OPTIONS
     -mcpu=cortex-m4
@@ -24,3 +24,5 @@ set(LINK_OPTIONS
     -Wl,-Map=${PROJECT_NAME}.map,--cref
     # -Wl,--gc-sections
 )
+
+set(CLANG_TIDY_ARGS ";--extra-arg=--target=arm")

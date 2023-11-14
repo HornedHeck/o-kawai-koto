@@ -59,8 +59,8 @@ uint16_t BlockingRead(const CommunicationHandle *handle, uint8_t *buffer,
     return 0;
 }
 
-uint16_t ExecuteAtCommand(const CommunicationHandle *handle, uint8_t *buffer,
-                          uint16_t bufferSize, ATCommand ATCommand) {
+uint16_t ExecuteCommand(const CommunicationHandle *handle, uint8_t *buffer,
+                        uint16_t bufferSize, ATCommand ATCommand) {
     DataSequence commandData = {
         .data = commands[ATCommand],
         .size = strlen(commands[ATCommand]),

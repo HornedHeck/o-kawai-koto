@@ -15,7 +15,7 @@ uint16_t BlockingRead(const CommunicationHandle *handle, uint8_t *buffer,
                       uint16_t bufferSize, DataSequence start,
                       const DataSequence *ends, uint16_t endsCount);
 
-uint16_t ExecuteAtCommand(const CommunicationHandle *handle, uint8_t *buffer,
-                          uint16_t bufferSize, ATCommand atCommand);
+uint16_t ExecuteCommand(const CommunicationHandle *handle, uint8_t *buffer,
+                        uint16_t bufferSize, ATCommand atCommand);
 
 #endif /* BSP_NETWORK_AT_INCLUDE_COMMUNICATIONS_EX */

@@ -38,3 +38,35 @@
 
     OK
 ```
+
+### How to send data
+
+#### 1. AT+CIPSTART
+
+    Estabilish UDP connection
+
+```
+    // Single connection (AT+CIPMUX=0):
+    AT+CIPSTART=<"type">,<"remote host">,<remote port>[,<local port>,<mode>,<"local IP">]
+```
+
+```
+    AT+CIPSTART="UDP","192.168.101.110",1000,1002,2
+    AT+CIPSTART="UDP","192.168.101.110",1000,1002,2
+
+    CONNECT
+    OK
+```
+
+#### 2. AT+CIPSEND
+
+    `AT+CIPSEND=<length>`
+
+```
+    AT+CIPSEND=100
+
+    OK
+    >
+    // Send 100 bytes here, no escaping needed
+    SEND OK    
+```

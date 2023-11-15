@@ -16,7 +16,7 @@ add_library(NETWORK STATIC)
 
 target_sources(NETWORK PUBLIC ${NETWORK_SRC})
 
-target_include_directories(NETWORK PUBLIC ${NETWORK_INC} PRIVATE ${NETWORK_PRIVATE_INC})
+target_include_directories(NETWORK PUBLIC ${NETWORK_INC} ${NETWORK_PRIVATE_INC})
 
 include(${NETWORK_FLAVOR}/dependencies.cmake OPTIONAL)
 

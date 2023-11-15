@@ -34,7 +34,7 @@ target_compile_options(${TARGET_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_compile_definitions(${TARGET_NAME} PRIVATE ${COMPILE_DEFINITIONS})
 target_link_options(${TARGET_NAME} PRIVATE ${LINK_OPTIONS})
 
-target_link_libraries(${TARGET_NAME} BOARD)
+target_link_libraries(${TARGET_NAME} BOARD NETWORK)
 
 target_enable_lint(${TARGET_NAME})
 

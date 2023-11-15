@@ -17,8 +17,8 @@ static const DataSequence ends[] = {
 };
 
 static const char commands[3][50] = {
-    "AT+CWMODE=1,0", "AT+CWJAP=\"" WIFI_SSID "\",\"" WIFI_PWD "\"",
-    "AT+CIPSTA?"};
+    "AT+CWMODE=1,0\r\n", "AT+CWJAP=\"" WIFI_SSID "\",\"" WIFI_PWD "\"\r\n",
+    "AT+CIPSTA?\r\n"};
 
 static void GetNextByte(const CommunicationHandle *handle, uint8_t *buffer) {
     ReceiveData(handle, buffer, 1);
@@ -61,9 +61,16 @@ uint16_t BlockingRead(const CommunicationHandle *handle, uint8_t *buffer,
 
 uint16_t ExecuteCommand(const CommunicationHandle *handle, uint8_t *buffer,
                         uint16_t bufferSize, ATCommand ATCommand) {
+    return ExecuteAtCommand(handle, buffer, bufferSize, commands[ATCommand],
+                            strlen(commands[ATCommand]));
+}
+
+uint16_t ExecuteAtCommand(const CommunicationHandle *handle, uint8_t *buffer,
+                          uint16_t bufferSize, const char *atCommand,
+                          const uint16_t atCommandSize) {
     DataSequence commandData = {
-        .data = commands[ATCommand],
-        .size = strlen(commands[ATCommand]),
+        .data = atCommand,
+        .size = atCommandSize,
     };
     SendData(handle, (const uint8_t *) commandData.data, commandData.size);
     return BlockingRead(handle, buffer, bufferSize, commandData, ends, 2);

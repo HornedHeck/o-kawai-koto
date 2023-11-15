@@ -11,7 +11,7 @@ typedef struct {
     uint16_t port;
 } InetAddr;
 
-void Init(const CommunicationHandle *handle);
+void InitNetwork(const CommunicationHandle *handle);
 
 void Connect(InetAddr addr);
 

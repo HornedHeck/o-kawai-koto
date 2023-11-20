@@ -9,7 +9,8 @@ Checks: >
   -modernize-deprecated-headers,
   -bugprone-easily-swappable-parameters,
   -modernize-macro-to-enum,
-  -readability-magic-numbers
+  -readability-magic-numbers,
+  -bugprone-not-null-terminated-result
 WarningsAsErrors: "*"
 
 

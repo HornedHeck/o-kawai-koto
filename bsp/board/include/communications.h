@@ -21,4 +21,5 @@ void SendData(const CommunicationHandle *handle, const uint8_t *data,
 void ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
                  uint16_t bufferSize);
 
+uint8_t ReadByte(const CommunicationHandle *handle, uint8_t *dst);
 #endif /* BSP_BOARD_INCLUDE_COMMUNICATIONS */

@@ -30,5 +30,13 @@ void SendData(const CommunicationHandle *handle, const uint8_t *data,
 
 void ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
                  uint16_t bufferSize) {
-    HAL_UART_Receive(handle->hwHandle, buffer, bufferSize, 1000);  // NOLINT
+    HAL_UART_Receive(handle->hwHandle, buffer, bufferSize, 50);
+}
+
+uint8_t ReadByte(const CommunicationHandle *handle, uint8_t *dst) {
+    uint8_t error = 0;
+    if (HAL_UART_Receive(handle->hwHandle, dst, 1, 1000) == HAL_TIMEOUT) {
+        error = 1;
+    }
+    return error;
 }

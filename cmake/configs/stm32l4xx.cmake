@@ -1,4 +1,5 @@
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/tool/arm_none_eabi_toolchain.cmake)
+set(CMAKE_TOOLCHAIN_FILE
+    ${CMAKE_SOURCE_DIR}/cmake/toolchains/arm_none_eabi_toolchain.cmake)
 
 set(COMPILE_OPTIONS
     -mcpu=cortex-m4
@@ -14,7 +15,7 @@ set(COMPILE_OPTIONS
 set(COMPILE_DEFINITIONS STM32L432xx USE_HAL_DRIVER)
 
 set(LINK_OPTIONS
-    -T${CMAKE_SOURCE_DIR}/drivers/STM32L432KCUx_FLASH.ld
+    -T${CMAKE_SOURCE_DIR}/drivers/STM32L432KCUX_FLASH.ld
     -mcpu=cortex-m4
     -mthumb
     -mfpu=fpv4-sp-d16
@@ -23,3 +24,5 @@ set(LINK_OPTIONS
     -Wl,-Map=${PROJECT_NAME}.map,--cref
     # -Wl,--gc-sections
 )
+
+set(CLANG_TIDY_ARGS ";--extra-arg=--target=arm")

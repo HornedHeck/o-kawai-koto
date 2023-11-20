@@ -5,6 +5,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
 include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/secrets.cmake)
 
 include(${CMAKE_SOURCE_DIR}/cmake/configs/${BOARD_FLAVOR}.cmake OPTIONAL)
 
@@ -13,7 +14,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
 project(
-  "projectname"
+  "o-kawai-koto"
   LANGUAGES C ASM
   VERSION 0.1.0)
 
@@ -33,7 +34,7 @@ target_compile_options(${TARGET_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_compile_definitions(${TARGET_NAME} PRIVATE ${COMPILE_DEFINITIONS})
 target_link_options(${TARGET_NAME} PRIVATE ${LINK_OPTIONS})
 
-target_link_libraries(${TARGET_NAME} BOARD)
+target_link_libraries(${TARGET_NAME} BOARD NETWORK)
 
 target_enable_lint(${TARGET_NAME})
 

@@ -9,3 +9,6 @@ build
 #vscode
 .vscode
 .gitignore
+
+# Secrets file
+cmake/secrets.cmake

@@ -1,7 +1,7 @@
 #include "stm32l4xx_iface.h"
 
-void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
+void SystemClock_Config();
+static void MX_GPIO_Init();
 
 void Init(void) {
     HAL_Init();

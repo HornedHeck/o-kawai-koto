@@ -5,11 +5,13 @@
 #include "string.h"
 
 #define CMD_BUFFER_SIZE 100
+#define READ_BUFFER_SIZE 4096
 #define CONNECT_SIZE    19
 #define SEND_SIZE       11
 
 static const CommunicationHandle *hComm;
 static uint8_t cmdBuffer[CMD_BUFFER_SIZE];
+static uint8_t readBuffer[READ_BUFFER_SIZE];
 static const char connectCMD[] = "AT+CIPSTART=\"UDP\",\"";
 static const char sendCMD[] = "AT+CIPSEND=";
 
@@ -35,6 +37,7 @@ void Connect(InetAddr addr) {
     cmdBuffer[pos++] = ',';
     pos += AppendUnsignedNumber(addr.port, cmdBuffer, pos);
     SendData(hComm, cmdBuffer, pos);
+    ReceiveData(hComm, readBuffer, READ_BUFFER_SIZE);
 }
 
 void NetworkSendData(InetAddr addr, uint8_t *data, uint16_t dataSize) {
@@ -55,6 +58,7 @@ void NetworkSendData(InetAddr addr, uint8_t *data, uint16_t dataSize) {
     if (readyToSend) {
         // Sendig data
         SendData(hComm, data, dataSize);
+        ReceiveData(hComm, readBuffer, READ_BUFFER_SIZE);
     }
 }
 

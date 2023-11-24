@@ -17,12 +17,10 @@ static const DataSequence ends[] = {
 };
 
 static const char commands[3][50] = {
-    "AT+CWMODE=1,0\r\n", "AT+CWJAP=\"" WIFI_SSID "\",\"" WIFI_PWD "\"\r\n",
-    "AT+CIPSTA?\r\n"};
-
-static void GetNextByte(const CommunicationHandle *handle, uint8_t *buffer) {
-    ReceiveData(handle, buffer, 1);
-}
+    "AT+CWMODE=1,0\r\n",
+    "AT+CWJAP=\"" WIFI_SSID "\",\"" WIFI_PWD "\"\r\n",
+    "AT+CIPSTA?\r\n",
+};
 
 uint16_t BlockingRead(const CommunicationHandle *handle, uint8_t *buffer,
                       uint16_t bufferSize, DataSequence start,
@@ -32,8 +30,8 @@ uint16_t BlockingRead(const CommunicationHandle *handle, uint8_t *buffer,
 
     uint16_t startSequenceCounter = 0;
     uint8_t localBuffer;
-    while (startSequenceCounter < start.size) {
-        GetNextByte(handle, &localBuffer);
+    while (startSequenceCounter < start.size &&
+           ReadByte(handle, &localBuffer) == 0) {
         if (localBuffer == (uint8_t) start.data[startSequenceCounter]) {
             startSequenceCounter++;
         } else {
@@ -41,8 +39,7 @@ uint16_t BlockingRead(const CommunicationHandle *handle, uint8_t *buffer,
         }
     }
 
-    while (readCount < bufferSize) {
-        GetNextByte(handle, &localBuffer);
+    while (readCount < bufferSize && ReadByte(handle, &localBuffer) == 0) {
         buffer[readCount] = localBuffer;
         readCount++;
         for (uint16_t j = 0; j < endsCount; j++) {

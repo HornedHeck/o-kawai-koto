@@ -9,10 +9,10 @@ void InitLog(CommunicationHandle *hCommArg) {
     hComm = hCommArg;
 }
 
-void LogD(uint8_t message[], uint16_t size) {
+void LogD(const uint8_t message[], uint16_t size) {
     SendData(hComm, message, size);
 }
 
-void LogS(char message[], uint16_t size) {
+void LogS(const char message[], uint16_t size) {
     SendData(hComm, (uint8_t *) message, size);
 }

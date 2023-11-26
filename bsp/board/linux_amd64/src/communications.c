@@ -3,29 +3,39 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DATA_LENGTH 9
-#define OK_LENGTH   4
+void InitCommunication(CommunicationHandle *handle) {}
 
-static char internalBuf[1024];
-static char body[DATA_LENGTH] = "SomeData";
-static char responseOK[OK_LENGTH] = {'O', 'K', '\r', '\n'};
-void InitCommunication(CommunicationHandle *handle) {
-    printf("Initializing  communication of type %d # %d\n", handle->protocol,
-           handle->portNum);
+static uint8_t OK_RESPONSE[] = "AT+CWMODE=1,0\r\nOK\r\n";
+static uint8_t ERROR_RESPONSE[] = "AT+CWMODE=1,0\r\nERROR\r\n";
+static uint16_t responsePointer = 0;
+
+ResponseStatus SendData(const CommunicationHandle *handle, const uint8_t *data,
+                        uint16_t size) {
+    if (handle->portNum == 2) {
+        return RESPONSE_OK;
+    }
+    responsePointer = 0;
 }
 
-static size_t lastWrite = 0;
-
-void SendData(const CommunicationHandle *handle, const uint8_t *data,
-              uint16_t size) {
-    memcpy(internalBuf, data, size);  // NOLINT
-    lastWrite = size;
-    printf("Sending data of size %d: %s\n", size, data);
+ResponseStatus ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
+                           uint16_t bufferSize) {
+    if (handle->portNum == 2) {
+        return RESPONSE_OK;
+    }
+    memcpy(buffer, OK_RESPONSE, 19);
+    return RESPONSE_OK;
 }
 
-void ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
-                 uint16_t bufferSize) {
-    memcpy(buffer, internalBuf, lastWrite);
-    memcpy(buffer + lastWrite, body, DATA_LENGTH);
-    memcpy(buffer + lastWrite + DATA_LENGTH, responseOK, OK_LENGTH);
+ResponseStatus ReadByte(const CommunicationHandle *handle, uint8_t *dst) {
+    if (handle->portNum == 2) {
+        return RESPONSE_OK;
+    }
+    if (responsePointer < 20)
+    {
+        *dst = OK_RESPONSE[responsePointer++];
+        return RESPONSE_OK;
+    }else{ //NOLINT
+        return RESPONSE_ERROR;
+    }
+    
 }

@@ -6,6 +6,21 @@
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
+static inline ResponseStatus MapHALResponse(HAL_StatusTypeDef response) {
+    switch (response) {
+        case HAL_OK:
+            return RESPONSE_OK;
+            break;
+        case HAL_BUSY:
+        case HAL_ERROR:
+            return RESPONSE_ERROR;
+            break;
+        case HAL_TIMEOUT:
+            return RESPONSE_TIMEOUT;
+            break;
+    }
+}
+
 void InitCommunication(CommunicationHandle *handle) {
     if (handle->protocol == UART && handle->portNum == 2) {
         huart2.Instance = USART2;
@@ -38,20 +53,18 @@ void InitCommunication(CommunicationHandle *handle) {
     }
 }
 
-uint8_t SendData(const CommunicationHandle *handle, const uint8_t *data,
-                 uint16_t size) {
-    return HAL_UART_Transmit(handle->hwHandle, data, size, 500);  // NOLINT
+ResponseStatus SendData(const CommunicationHandle *handle, const uint8_t *data,
+                        uint16_t size) {
+    return MapHALResponse(
+        HAL_UART_Transmit(handle->hwHandle, data, size, 100));
 }
 
-uint8_t ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
-                    uint16_t bufferSize) {
-    return HAL_UART_Receive(handle->hwHandle, buffer, bufferSize, 500);
+ResponseStatus ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
+                           uint16_t bufferSize) {
+    return MapHALResponse(
+        HAL_UART_Receive(handle->hwHandle, buffer, bufferSize, 100));
 }
 
-uint8_t ReadByte(const CommunicationHandle *handle, uint8_t *dst) {
-    uint8_t error = 0;
-    if (HAL_UART_Receive(handle->hwHandle, dst, 1, 100) == HAL_TIMEOUT) {
-        error = 1;
-    }
-    return error;
+ResponseStatus ReadByte(const CommunicationHandle *handle, uint8_t *dst) {
+    return MapHALResponse(HAL_UART_Receive(handle->hwHandle, dst, 1, 1000));
 }

@@ -3,72 +3,57 @@
 #include <string.h>
 
 #include "communications.h"
+#include "log.h"
 #include "stddef.h"
 
-static const DataSequence ends[] = {
-    {
-        .data = "OK\r\n",
-        .size = 4,
-    },
-    {
-        .data = "ERROR\r\n",
-        .size = 7,
-    },
-};
+#define ENDS_COUNT 2
 
-static const char commands[3][50] = {
-    "AT+CWMODE=1,0\r\n",
-    "AT+CWJAP=\"" WIFI_SSID "\",\"" WIFI_PWD "\"\r\n",
-    "AT+CIPSTA?\r\n",
-};
+static const uint8_t *ends[] = {"OK\r\n", "ERROR\r\n"};
 
-uint16_t BlockingRead(const CommunicationHandle *handle, uint8_t *buffer,
-                      uint16_t bufferSize, DataSequence start,
-                      const DataSequence *ends, uint16_t endsCount) {
-    uint16_t endSequenceCounters[endsCount];
-    uint16_t readCount = 0;
+static const uint16_t endSize[] = {4U, 7U};
 
-    uint16_t startSequenceCounter = 0;
-    uint8_t localBuffer;
-    while (startSequenceCounter < start.size &&
-           ReadByte(handle, &localBuffer) == 0) {
-        if (localBuffer == (uint8_t) start.data[startSequenceCounter]) {
-            startSequenceCounter++;
-        } else {
-            startSequenceCounter = 0;
-        }
-    }
+ResponseStatus Execute(const CommunicationHandle *hComm, const uint8_t *cmd,
+                       uint16_t cmdSize, uint8_t *out, uint16_t outSize,
+                       uint16_t *read) {
+    uint8_t lastRead;
+    ResponseStatus readStatus = RESPONSE_ERROR;
+    uint16_t pos = 0;
+    uint16_t endsCounters[ENDS_COUNT] = {0};
 
-    while (readCount < bufferSize && ReadByte(handle, &localBuffer) == 0) {
-        buffer[readCount] = localBuffer;
-        readCount++;
-        for (uint16_t j = 0; j < endsCount; j++) {
-            if (localBuffer == (uint8_t) ends[j].data[endSequenceCounters[j]]) {
-                endSequenceCounters[j]++;
-                if (endSequenceCounters[j] == ends[j].size) {
-                    return readCount - endSequenceCounters[j];
-                }
+    Log("Executing: ", 11);
+    Log(cmd, cmdSize);
+
+    SendData(hComm, cmd, cmdSize);
+
+    while (pos < outSize &&
+           (readStatus = ReadByte(hComm, out + pos)) == RESPONSE_OK) {
+        lastRead = out[pos];
+        for (uint8_t i = 0; i < ENDS_COUNT; i++) {
+            if (lastRead != ends[i][endsCounters[i]]) {
+                endsCounters[i] = 0;
             } else {
-                endSequenceCounters[j] = 0;
+                endsCounters[i] += 1;
+                if (endsCounters[i] == endSize[i]) {
+                    *read = pos + 1;
+                    Log("Response: OK\r\n", 14);
+                    return RESPONSE_OK;
+                }
             }
         }
+        pos += 1;
     }
-    return 0;
-}
 
-uint16_t ExecuteCommand(const CommunicationHandle *handle, uint8_t *buffer,
-                        uint16_t bufferSize, ATCommand ATCommand) {
-    return ExecuteAtCommand(handle, buffer, bufferSize, commands[ATCommand],
-                            strlen(commands[ATCommand]));
-}
-
-uint16_t ExecuteAtCommand(const CommunicationHandle *handle, uint8_t *buffer,
-                          uint16_t bufferSize, const char *atCommand,
-                          const uint16_t atCommandSize) {
-    DataSequence commandData = {
-        .data = atCommand,
-        .size = atCommandSize,
-    };
-    SendData(handle, (const uint8_t *) commandData.data, commandData.size);
-    return BlockingRead(handle, buffer, bufferSize, commandData, ends, 2);
+    *read = pos;
+    switch (readStatus) {
+        case RESPONSE_OK:
+            Log("Response: OK\r\n", 14);
+            break;
+        case RESPONSE_ERROR:
+            Log("Response: ERROR\r\n", 17);
+            break;
+        case RESPONSE_TIMEOUT:
+            Log("Response: TIMEOUT\r\n", 19);
+            break;
+    }
+    return readStatus;
 }

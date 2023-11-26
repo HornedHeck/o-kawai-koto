@@ -13,13 +13,19 @@ typedef struct {
     void *hwHandle;
 } CommunicationHandle;
 
+typedef enum {
+    RESPONSE_OK = 0,
+    RESPONSE_ERROR,
+    RESPONSE_TIMEOUT,
+} ResponseStatus;
+
 void InitCommunication(CommunicationHandle *handle);
 
-uint8_t SendData(const CommunicationHandle *handle, const uint8_t *data,
-                 uint16_t size);
+ResponseStatus SendData(const CommunicationHandle *handle, const uint8_t *data,
+                        uint16_t size);
 
-uint8_t ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
-                    uint16_t bufferSize);
+ResponseStatus ReceiveData(const CommunicationHandle *handle, uint8_t *buffer,
+                           uint16_t bufferSize);
 
-uint8_t ReadByte(const CommunicationHandle *handle, uint8_t *dst);
+ResponseStatus ReadByte(const CommunicationHandle *handle, uint8_t *dst);
 #endif /* BSP_BOARD_INCLUDE_COMMUNICATIONS */

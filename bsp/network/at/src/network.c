@@ -1,19 +1,27 @@
 #include "network.h"
 
 #include "communications_ex.h"
+#include "log.h"
 #include "stdbool.h"
 #include "string.h"
 
-#define CMD_BUFFER_SIZE 100
+#define CMD_BUFFER_SIZE  100
 #define READ_BUFFER_SIZE 4096
-#define CONNECT_SIZE    19
-#define SEND_SIZE       11
+
+#define CMD_STATION_MODE      "AT+CWMODE=1,0\r\n"
+#define CMD_STATION_MODE_SIZE (sizeof CMD_STATION_MODE - 1)
+#define CMD_CONNECT_WIFI      "AT+CWJAP=\"" WIFI_SSID "\",\"" WIFI_PWD "\"\r\n"
+#define CMD_CONNECT_WIFI_SIZE (sizeof CMD_CONNECT_WIFI - 1)
+#define CMD_GET_IP            "AT+CIPSTA?\r\n"
+#define CMD_GET_IP_SIZE       (sizeof CMD_GET_IP - 1)
+#define CMD_UDP_CONNECT       "AT+CIPSTART=\"UDP\",\""
+#define CMD_UDP_CONNECT_SIZE  (sizeof CMD_UDP_CONNECT - 1)
+#define CMD_UDP_SEND          "AT+CIPSEND="
+#define CMD_UDP_SEND_SIZE     (sizeof CMD_UDP_SEND - 1)
 
 static const CommunicationHandle *hComm;
 static uint8_t cmdBuffer[CMD_BUFFER_SIZE];
 static uint8_t readBuffer[READ_BUFFER_SIZE];
-static const char connectCMD[] = "AT+CIPSTART=\"UDP\",\"";
-static const char sendCMD[] = "AT+CIPSEND=";
 
 static uint16_t AppendInetAddr(InetAddr addr, uint8_t *dst, uint16_t startPos);
 static uint16_t AppendUnsignedNumber(uint_least16_t number, uint8_t *dst,
@@ -21,44 +29,65 @@ static uint16_t AppendUnsignedNumber(uint_least16_t number, uint8_t *dst,
 
 void InitNetwork(const CommunicationHandle *handle) {
     hComm = handle;
-    // Set Station Mode
 
-    ExecuteCommand(hComm, cmdBuffer, CMD_BUFFER_SIZE, SET_STATION_MODE);
+    uint16_t bytesRead = 0;
+    // Set Station Mode
+    if (Execute(hComm, CMD_STATION_MODE, CMD_STATION_MODE_SIZE, readBuffer,
+                READ_BUFFER_SIZE, &bytesRead) != RESPONSE_OK) {
+        Log("Error response on Set Station mode\r\n", 36);
+        return;
+    };
     // Connect to WIFI
-    ExecuteCommand(hComm, cmdBuffer, CMD_BUFFER_SIZE, CONNECT_TO_WIFI);
+    if (Execute(hComm, CMD_CONNECT_WIFI, CMD_CONNECT_WIFI_SIZE, readBuffer,
+                READ_BUFFER_SIZE, &bytesRead) != RESPONSE_OK) {
+        Log("Error response on Connect to Wifi\r\n", 35);
+        return;
+    }
     // Retrive IP
-    ExecuteCommand(hComm, cmdBuffer, CMD_BUFFER_SIZE, GET_IP_ADDR);
+    if (Execute(hComm, CMD_GET_IP, CMD_GET_IP_SIZE, readBuffer,
+                READ_BUFFER_SIZE, &bytesRead) != RESPONSE_OK) {
+        Log("Error response on Get IP\r\n", 26);
+    }
 }
 
 void Connect(InetAddr addr) {
-    memcpy(cmdBuffer, connectCMD, CONNECT_SIZE);
-    uint16_t pos = AppendInetAddr(addr, cmdBuffer, CONNECT_SIZE) + CONNECT_SIZE;
+    memcpy(cmdBuffer, CMD_UDP_CONNECT, CMD_UDP_CONNECT_SIZE);
+    uint16_t pos = CMD_UDP_CONNECT_SIZE;
+    pos += AppendInetAddr(addr, cmdBuffer, pos);
     cmdBuffer[pos++] = '"';
     cmdBuffer[pos++] = ',';
     pos += AppendUnsignedNumber(addr.port, cmdBuffer, pos);
-    SendData(hComm, cmdBuffer, pos);
-    ReceiveData(hComm, readBuffer, READ_BUFFER_SIZE);
+    cmdBuffer[pos++] = '\r';
+    cmdBuffer[pos++] = '\n';
+
+    uint16_t bytesRead = 0;
+    ResponseStatus response =
+        Execute(hComm, cmdBuffer, pos, readBuffer, READ_BUFFER_SIZE, &bytesRead);
 }
 
 void NetworkSendData(InetAddr addr, uint8_t *data, uint16_t dataSize) {
     // Send AT+CIPSEND=<length>
-    memcpy(cmdBuffer, sendCMD, SEND_SIZE);
-    uint16_t pos =
-        AppendUnsignedNumber(dataSize, cmdBuffer, SEND_SIZE) + SEND_SIZE;
+    memcpy(cmdBuffer, CMD_UDP_SEND, CMD_UDP_SEND_SIZE);
+    uint16_t pos = CMD_UDP_SEND_SIZE;
+    pos += AppendUnsignedNumber(dataSize, cmdBuffer, CMD_UDP_SEND_SIZE);
     cmdBuffer[pos++] = '\r';
     cmdBuffer[pos++] = '\n';
     SendData(hComm, cmdBuffer, pos);
     // Wait for >
     bool readyToSend = false;
-    uint8_t res = 0;
-    while (res == 0 && !readyToSend) {
+    ResponseStatus res = RESPONSE_OK;
+    while (res == RESPONSE_OK && !readyToSend) {
         res = ReadByte(hComm, cmdBuffer);
         readyToSend = cmdBuffer[0] == '>';
     }
     if (readyToSend) {
         // Sendig data
         SendData(hComm, data, dataSize);
-        ReceiveData(hComm, readBuffer, READ_BUFFER_SIZE);
+        ResponseStatus response = ReceiveData(hComm, readBuffer, READ_BUFFER_SIZE); 
+        Log("Response status: ", 17);
+        Log(&response, 1);
+        Log("\r\n", 2);
+        
     }
 }
 

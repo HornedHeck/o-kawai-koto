@@ -2,6 +2,7 @@
 #define BSP_NETWORK_INCLUDE_NETWORK
 
 #include <stdint.h>
+
 #include "communications.h"
 
 #define ADDR_SIZE 4
@@ -11,7 +12,9 @@ typedef struct {
     uint16_t port;
 } InetAddr;
 
-void InitNetwork(const CommunicationHandle *handle);
+typedef void (*DataCallback)(const uint8_t *, uint16_t);
+
+void InitNetwork(const CommunicationHandle *hCom, const DataCallback callback);
 
 void Connect(InetAddr addr);
 

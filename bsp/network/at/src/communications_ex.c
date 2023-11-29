@@ -12,6 +12,20 @@ static const uint8_t *ends[] = {"OK\r\n", "ERROR\r\n"};
 
 static const uint16_t endSize[] = {4U, 7U};
 
+bool DetectError(uint8_t symbol) {
+    static uint8_t counter = 0;
+    if (ends[1][counter] == symbol) {
+        if (counter == endSize[1] - 1) {
+            counter = 0;
+            return true;
+        }
+        counter++;
+    } else {
+        counter = 0;
+    }
+    return false;
+}
+
 ResponseStatus Execute(const CommunicationHandle *hComm, const uint8_t *cmd,
                        uint16_t cmdSize, uint8_t *out, uint16_t outSize,
                        uint16_t *read) {

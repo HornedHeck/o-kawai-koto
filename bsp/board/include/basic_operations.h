@@ -15,4 +15,6 @@ void TogglePin(Pin pin);
 
 void Delay(uint32_t milis);
 
+uint32_t GetTick();
+
 #endif /* BSP_BOARD_INCLUDE_BASIC_OPERATIONS */

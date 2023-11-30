@@ -17,13 +17,20 @@ const struct {
     .TIMEOUT = 2,
 };
 
+static bool ready_to_send = true;
+
+void NetworkReceivedCallback(const uint8_t *buffer, uint16_t buffer_size) {
+    Log("Data Received:\r\n" , 16);
+    Log(buffer, buffer_size);
+    ready_to_send = true;
+}
 
 int main() {
     InitBoard();
 
     // Open OCD fix for UART mess
     Delay(1000);
-    
+
     CommunicationHandle comHandle = {.portNum = 2, .protocol = UART};
     InitCommunication(&comHandle);
     InitLog(&comHandle);
@@ -34,14 +41,18 @@ int main() {
     Log("\r\nSystem Init complete \r\n", 25);
 
     InetAddr addr = {.addr = {192, 168, 0, 31}, .port = 39039};
-    InitNetwork(&hUART1);
+    InitNetwork(&hUART1, &NetworkReceivedCallback);
     Connect(addr);
-
 
     Log("Idling...\r\n", 11);
     while (1) {
-        NetworkSendData(addr, "Hello world!\r\n", 14);
-        Delay(1000);  // NOLINT
+        if (ready_to_send) {
+            ready_to_send = false;
+            NetworkSendData(addr, "Hello world!\r\n", 14);
+        }else{
+            Tick();
+        }
+        Delay(500);  // NOLINT
     }
 
     return 0;

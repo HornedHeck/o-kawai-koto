@@ -3,14 +3,10 @@
 #include <string.h>
 
 #include "communications.h"
+#include "detectors.h"
 #include "log.h"
 #include "stddef.h"
-
-#define ENDS_COUNT 2
-
-static const uint8_t *ends[] = {"OK\r\n", "ERROR\r\n"};
-
-static const uint16_t endSize[] = {4U, 7U};
+#include "stdio.h"
 
 ResponseStatus Execute(const CommunicationHandle *hComm, const uint8_t *cmd,
                        uint16_t cmdSize, uint8_t *out, uint16_t outSize,
@@ -18,7 +14,6 @@ ResponseStatus Execute(const CommunicationHandle *hComm, const uint8_t *cmd,
     uint8_t lastRead;
     ResponseStatus readStatus = RESPONSE_ERROR;
     uint16_t pos = 0;
-    uint16_t endsCounters[ENDS_COUNT] = {0};
 
     Log("Executing: ", 11);
     Log(cmd, cmdSize);
@@ -28,17 +23,15 @@ ResponseStatus Execute(const CommunicationHandle *hComm, const uint8_t *cmd,
     while (pos < outSize &&
            (readStatus = ReadByte(hComm, out + pos)) == RESPONSE_OK) {
         lastRead = out[pos];
-        for (uint8_t i = 0; i < ENDS_COUNT; i++) {
-            if (lastRead != ends[i][endsCounters[i]]) {
-                endsCounters[i] = 0;
-            } else {
-                endsCounters[i] += 1;
-                if (endsCounters[i] == endSize[i]) {
-                    *read = pos + 1;
-                    Log("Response: OK\r\n", 14);
-                    return RESPONSE_OK;
-                }
-            }
+        bool ok_detected = Detect(lastRead, DETECTABLE_OK);
+        bool error_detected = Detect(lastRead, DETECTABLE_ERROR);
+        if (ok_detected) {
+            Log("Response: OK\r\n", 14);
+            return RESPONSE_OK;
+        }
+        if (error_detected) {
+            Log("Response: ERROR\r\n", 17);
+            return RESPONSE_ERROR;
         }
         pos += 1;
     }

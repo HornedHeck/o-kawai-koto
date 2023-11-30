@@ -30,12 +30,15 @@ ResponseStatus ReadByte(const CommunicationHandle *handle, uint8_t *dst) {
     if (handle->portNum == 2) {
         return RESPONSE_OK;
     }
-    if (responsePointer < 20)
-    {
+    if (responsePointer < 20) {
         *dst = OK_RESPONSE[responsePointer++];
         return RESPONSE_OK;
-    }else{ //NOLINT
+    } else {  // NOLINT
         return RESPONSE_ERROR;
     }
-    
 }
+
+void EnableITReceive(CommunicationHandle *handle, uint8_t *buffer,
+                     uint16_t buffer_size, bool (*it_read_callback)()) {}
+
+void DisableITReceive(CommunicationHandle *handle) {}

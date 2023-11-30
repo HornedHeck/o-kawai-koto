@@ -93,7 +93,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
         h_comm = h_comm_uart1;
     } else if (huart == &huart2) {
         h_comm = h_comm_uart2;
-    } else{
+    } else {
         return;
     }
     if (h_comm->it_read_callback == NULL) {

@@ -14,10 +14,11 @@ typedef struct {
 
 typedef void (*DataCallback)(const uint8_t *, uint16_t);
 
-void InitNetwork(const CommunicationHandle *hCom, const DataCallback callback);
+void InitNetwork(CommunicationHandle *hCom, const DataCallback callback);
 
 void Connect(InetAddr addr);
 
 void NetworkSendData(InetAddr addr, uint8_t *data, uint16_t dataSize);
 
+void Tick();
 #endif /* BSP_NETWORK_INCLUDE_NETWORK */

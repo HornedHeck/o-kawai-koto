@@ -17,20 +17,12 @@ const struct {
     .TIMEOUT = 2,
 };
 
-void NetworkReceivedCallback(const uint8_t *buffer, uint16_t buffer_size) {}
+static bool ready_to_send = true;
 
-static uint8_t gmr[] = "AT+GMR\r\n";
-
-#define DATA_SIZE 256
-static uint8_t it_read_buffer;
-static uint8_t counter = 0;
-static uint8_t read_buffer[DATA_SIZE];
-
-bool OnReadCompleted() {
-    if (counter < DATA_SIZE) {
-        read_buffer[counter++] = it_read_buffer;
-    }
-    return true;
+void NetworkReceivedCallback(const uint8_t *buffer, uint16_t buffer_size) {
+    Log("Data Received:\r\n" , 16);
+    Log(buffer, buffer_size);
+    ready_to_send = true;
 }
 
 int main() {
@@ -52,15 +44,15 @@ int main() {
     InitNetwork(&hUART1, &NetworkReceivedCallback);
     Connect(addr);
 
-    // Log("Enable IT Mode\r\n", 16);
-    // EnableITReceive(&hUART1, &it_read_buffer, 1, &OnReadCompleted);
-
     Log("Idling...\r\n", 11);
     while (1) {
-        if (counter < DATA_SIZE) {
+        if (ready_to_send) {
+            ready_to_send = false;
             NetworkSendData(addr, "Hello world!\r\n", 14);
+        }else{
+            Tick();
         }
-        Delay(5000);  // NOLINT
+        Delay(500);  // NOLINT
     }
 
     return 0;

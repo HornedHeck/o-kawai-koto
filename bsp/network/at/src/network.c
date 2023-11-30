@@ -2,6 +2,7 @@
 
 #include "basic_operations.h"
 #include "communications_ex.h"
+#include "detectors.h"
 #include "log.h"
 #include "stdbool.h"
 #include "string.h"
@@ -23,32 +24,40 @@
 #define CMD_ENABLE_PASSIVE_MODE_SIZE (sizeof CMD_ENABLE_PASSIVE_MODE - 1)
 
 // State
-static const CommunicationHandle *kHCom;
+static CommunicationHandle *kHCom;
 static DataCallback kCallback;
 static enum State {
     FRESH,
     INIT,
     SENDING_DATA,
     AWAITING_DATA,
+    RECEIVING_DATA_LENGTH,
+    RECEIVING_DATA,
+    CONSUMING_DATA,
 } state = FRESH;
 
 // Buffers
 static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
 static uint8_t read_buffer[READ_BUFFER_SIZE];
 
-// IPD variables
-static uint8_t ipd_data_length = 0;
 // IT mode variables
 static bool is_it_enabled = false;
 static bool is_ready_to_send = false;
 static bool is_send_error = false;
+static bool is_ipd_detected = false;
 static uint8_t it_data_dst;
-static uint16_t it_counter;
+
+// Data receiving variables
+static uint16_t data_counter = 0;
+static uint16_t data_length = 0;
+static bool data_length_ready = true;
 
 static uint16_t AppendInetAddr(InetAddr addr, uint8_t *dst, uint16_t startPos);
 
 static uint16_t AppendUnsignedNumber(uint_least16_t number, uint8_t *dst,
                                      uint16_t startPos);
+
+static bool ParseLength(uint8_t symbol);
 
 bool DataReadyCallback() {
     switch (state) {
@@ -56,17 +65,39 @@ bool DataReadyCallback() {
         case INIT:
             return false;
             break;
-        case AWAITING_DATA:
-            break;
         case SENDING_DATA:
-            is_send_error = DetectError(it_data_dst);
-            is_ready_to_send = it_data_dst == '>';
+            is_send_error = Detect(it_data_dst, DETECTABLE_ERROR);
+            is_ready_to_send = Detect(it_data_dst, DETECTABLE_READY_FOR_DATA);
+            if (is_ready_to_send || is_send_error) {
+                // Enable await data state to process +IPD;
+                state = AWAITING_DATA;
+            }
+            break;
+        case AWAITING_DATA:
+            if (Detect(it_data_dst, DETECTABLE_INCOMING_DATA)) {
+                state = RECEIVING_DATA_LENGTH;
+            }
+            break;
+        case RECEIVING_DATA_LENGTH:
+            if (!ParseLength(it_data_dst)) {
+                state = RECEIVING_DATA;
+            }
+            break;
+        case RECEIVING_DATA:
+            if (data_counter < data_length) {
+                read_buffer[data_counter++] = it_data_dst;
+            } else {
+                data_counter = 0;
+                state = CONSUMING_DATA;
+            }
+            break;
+        case CONSUMING_DATA:
             break;
     }
     return true;
 }
 
-void InitNetwork(const CommunicationHandle *hCom, const DataCallback callback) {
+void InitNetwork(CommunicationHandle *hCom, const DataCallback callback) {
     if (state != FRESH) {
         return;
     }
@@ -95,11 +126,11 @@ void InitNetwork(const CommunicationHandle *hCom, const DataCallback callback) {
     }
 
     // Enable passive mode
-    if (Execute(kHCom, CMD_ENABLE_PASSIVE_MODE, CMD_ENABLE_PASSIVE_MODE_SIZE,
-                read_buffer, READ_BUFFER_SIZE, &bytes_read) != RESPONSE_OK) {
-        Log("Error response on Set Passive mode\r\n", 36);
-        return;
-    }
+    // if (Execute(kHCom, CMD_ENABLE_PASSIVE_MODE, CMD_ENABLE_PASSIVE_MODE_SIZE,
+    //             read_buffer, READ_BUFFER_SIZE, &bytes_read) != RESPONSE_OK) {
+    //     Log("Error response on Set Passive mode\r\n", 36);
+    //     return;
+    // }
     state = INIT;
 }
 
@@ -156,14 +187,18 @@ void NetworkSendData(InetAddr addr, uint8_t *data, uint16_t dataSize) {
     }
 
     // Sendig data
-    // Enable await data state to process +IPD;
-    state = AWAITING_DATA;
     if (is_ready_to_send) {
         SendData(kHCom, data, dataSize);
     }
 }
 
-void LoadData() {}
+void Tick() {
+    if (state == CONSUMING_DATA) {
+        kCallback(read_buffer, data_length);
+        data_length = 0;
+        state = AWAITING_DATA;
+    }
+}
 
 static uint16_t AppendInetAddr(InetAddr addr, uint8_t *dst, uint16_t startPos) {
     uint16_t pos = startPos;
@@ -190,3 +225,12 @@ static uint16_t AppendUnsignedNumber(uint_least16_t number, uint8_t *dst,
     }
     return counter;
 }
+
+static bool ParseLength(uint8_t symbol) {
+    if (symbol > '9' || symbol < '0') {
+        data_length_ready = true;
+        return false;
+    }
+    data_length = data_length * 10 + (symbol - '0');
+    return true;
+};

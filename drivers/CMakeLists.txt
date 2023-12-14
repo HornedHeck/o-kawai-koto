@@ -22,6 +22,8 @@ set(HAL_SRC
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c
     ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c
+    ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c
+    ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c
 )
 
 set(HAL_INC ${CMAKE_CURRENT_LIST_DIR}/Drivers/STM32L4xx_HAL_Driver/Inc

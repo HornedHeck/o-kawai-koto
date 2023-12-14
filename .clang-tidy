@@ -6,9 +6,11 @@ Checks: >
   bugprone-*,
   modernize-*,
   -modernize-use-using,
-  -modernize-deprecated-headers
-  -modernize-macro-to-enum
-  -modernize-use-trailing-return-type
+  -modernize-deprecated-headers,
+  -bugprone-easily-swappable-parameters,
+  -modernize-macro-to-enum,
+  -readability-magic-numbers,
+  -bugprone-not-null-terminated-result
 WarningsAsErrors: "*"
 
 

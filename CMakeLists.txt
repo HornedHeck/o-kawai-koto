@@ -5,6 +5,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
 include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/secrets.cmake)
 
 include(${CMAKE_SOURCE_DIR}/cmake/configs/${BOARD_FLAVOR}.cmake OPTIONAL)
 
@@ -37,6 +38,7 @@ target_link_options(${TARGET_NAME} PRIVATE ${LINK_OPTIONS})
 
 target_link_libraries(${TARGET_NAME} BOARD)
 target_link_libraries(${TARGET_NAME} opus)
+target_link_libraries(${TARGET_NAME} BOARD NETWORK)
 
 target_enable_lint(${TARGET_NAME})
 

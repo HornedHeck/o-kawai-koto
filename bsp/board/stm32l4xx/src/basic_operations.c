@@ -11,3 +11,7 @@ void TogglePin(Pin pin) {
 void Delay(uint32_t milis) {
     HAL_Delay(milis);
 }
+
+uint32_t GetTick(){
+    return HAL_GetTick();
+}

@@ -1,4 +1,3 @@
-
 set(COMPILE_OPTIONS
     -fdata-sections
     -ffunction-sections

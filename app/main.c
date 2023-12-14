@@ -1,7 +1,29 @@
 #include "main.h"
 
 #include "basic_operations.h"
+#include "communications.h"
 #include "init_board.h"
+#include "log.h"
+#include "network.h"
+#include "string.h"
+
+const struct {
+    uint8_t OK;
+    uint8_t ERROR;
+    uint8_t TIMEOUT;
+} ResponseType = {
+    .OK = 0,
+    .ERROR = 1,
+    .TIMEOUT = 2,
+};
+
+static bool ready_to_send = true;
+
+void NetworkReceivedCallback(const uint8_t *buffer, uint16_t buffer_size) {
+    Log("Data Received:\r\n" , 16);
+    Log(buffer, buffer_size);
+    ready_to_send = true;
+}
 #include "opus.h"
 #include "data.h"
 #include "stdio.h"

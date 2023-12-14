@@ -24,3 +24,5 @@ set(LINK_OPTIONS
     -Wl,-Map=${PROJECT_NAME}.map,--cref
     # -Wl,--gc-sections
 )
+
+set(CLANG_TIDY_ARGS ";--extra-arg=--target=arm")
